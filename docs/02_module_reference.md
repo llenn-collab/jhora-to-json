@@ -21,7 +21,7 @@ Reference for every Python file. Signatures, constants, return shapes, and side 
 
 **Functions**
 
-- `check_moolatrikona(planet, rasi, degree) -> bool` — degree-window test. Windows (sign, start°, end°): sun leo 0–20, moon taurus 3.0001–20, mars aries 0–12, mercury virgo 15.0001–20, jupiter sagittarius 0–10, venus libra 0–15, saturn aquarius 0–20. Inclusive bounds.
+- `check_moolatrikona(planet, rasi, degree) -> bool` — degree-window test. Windows (sign, start°, end°): sun leo 0–20, moon taurus 3.0001–20, mars aries 0–12, mercury virgo 15.0001–20, jupiter sagittarius 0–10, venus libra 0–15, saturn aquarius 0–20. Inclusive bounds. The degree is parsed from the longitude **with seconds required**; if seconds are absent the degree defaults to `0.0`.
 - `reformat_longitude(long_str) -> str` — `"13 Vi 14' 5.3\""` → `"13° 14' 5.3\""` (the sign abbreviation is stripped from the longitude string; the sign lives in the `rasi` field).
 - `clean_and_parse_planets(raw_text) -> {"planetary_positions": [record, …]}` — the main parser.
 
@@ -53,7 +53,7 @@ Reference for every Python file. Signatures, constants, return shapes, and side 
 
 **Algorithm per target house (1–12):**
 
-1. Occupancy map: core planets with a house → `{quarter, is_malefic, longitude}` per house.
+1. Occupancy map: core planets with a house → `{quarter, is_malefic, longitude}` per house. Positions without a house (parsed without a lagna row) are excluded, yielding an all-`none` matrix.
 2. `is_reverse = rahu or ketu occupies the target house`. If reverse, every source house relationship is inverted: `eff_rel = 14 − fwd_rel` (so 2nd becomes 12th, 5th becomes 9th, 11th becomes 3rd, …); conjunction (rel 1) unchanged.
 3. Axis resolution with cancellation — an argala is **blocked** when some virodhargala planet's quarter sums with the argala planet's quarter to exactly 5 (1↔4, 2↔3):
 

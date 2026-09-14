@@ -11,7 +11,7 @@ Terms the code uses, with the exact meaning attached to them in this repository.
 | **Rasi** | One of the 12 signs, always lowercase (`aries`…`pisces`), ordered by `ZODIAC_ORDER`. |
 | **Lagna (Ascendant)** | The rising sign; row `Lagna` in the JHora planet table. Anchor for house numbering: lagna's sign = house 1. |
 | **House (bhava)** | Whole-sign house counted from the lagna of the *current* varga: `house = (sign_idx − lagna_idx) % 12 + 1`. |
-| **Rasi lord (dispositor)** | Classical sign lord (`RASI_LORDS`: aries→mars, taurus→venus, gemini/virgo→mercury, cancer→moon, leo→sun, libra/taurus→venus, scorpio→mars, sagittarius/pisces→jupiter, capricorn/aquarius→saturn). Called "landlord" in code comments. |
+| **Rasi lord (dispositor)** | Classical sign lord (`RASI_LORDS`: aries→mars, taurus→venus, gemini/virgo→mercury, cancer→moon, leo→sun, libra→venus, scorpio→mars, sagittarius/pisces→jupiter, capricorn/aquarius→saturn). Called "landlord" in code comments. |
 
 ## Planets & Points
 
@@ -50,7 +50,7 @@ Terms the code uses, with the exact meaning attached to them in this repository.
 |---|---|
 | **Avastha** | Planet state, three fields: `age` (Sanskrit: Baala/Madya/Vriddha — infant/adult/old), `alertness` (jaagrita/awake, swapna/dreaming, sushupta/asleep), `moods` (e.g. hunger, thirst). Alertness is scored +10/−20/−40. |
 | **Ashtakavarga** | Point-based strength system. **BAV (Bhinnashtakavarga)**: per-planet 0–8 points per sign, 8 bodies tracked (incl. lagna). **SAV (Samudayashtakavarga)**: per-sign totals (lagna excluded). Scored +10 (BAV ≥5, SAV ≥30) / −10 (BAV ≤2, SAV <25). |
-| **Yoga** | A named planetary combination. Parsed with its `yoga_givers` (abbreviations like `Su`, `Mo`) and `definition`. At compile, the average strength score of its givers classifies it: **Active ≥70, Dormant 40–69, Asleep <40**; `active` stays true only for Active. |
+| **Yoga** | A named planetary combination. Parsed with its `yoga_givers` (abbreviations like `Su`, `Mo`) and `definition`. At compile, the average strength score of its givers classifies it: **Active (avg ≥70) · Dormant (avg ≥40, <70) · Asleep (avg <40)**; `active` stays true only for Active. |
 | **Aspect strength (%)** | JHora's aspect values (~0–100%). Parser keeps only ≥64.5; scoring acts only at ≥60. |
 
 ## Arudha Family

@@ -26,7 +26,7 @@ If a question is answered in `docs/05_invariants_and_gotchas.md`, trust that ans
 ## 3. Canonical Conventions (used everywhere, do not rename)
 
 - Planet names: lowercase `sun, moon, mars, mercury, jupiter, venus, saturn, rahu, ketu` (plus `lagna` and upagraha/special-point names in `snake_case`).
-- Sign names: lowercase `aries … pisces`, always in `ZODIAC_ORDER` (tropical-order list defined in `parse_planets.py` and duplicated in `compile_all.py` and `parse_ashtakavarga.py` as `ZODIAC`).
+- Sign names: lowercase `aries … pisces`, always in `ZODIAC_ORDER` (standard sign order, defined in `parse_planets.py` and duplicated in `compile_all.py` and `parse_ashtakavarga.py` as `ZODIAC`).
 - All JSON keys: `snake_case`. Varga-specific keys are prefixed with the user-supplied varga token (e.g. `D9_placement`, `D9_sav`).
 - The 9 "core planets" set is `{sun, moon, mars, mercury, jupiter, venus, saturn, rahu, ketu}` (defined independently in `parse_planets.py`, `calculate_argala.py`, and `compile_all.py`).
 - Sign→lord mapping `RASI_LORDS` is duplicated in `parse_planets.py` and `compile_all.py`.
@@ -46,7 +46,7 @@ If a question is answered in `docs/05_invariants_and_gotchas.md`, trust that ans
 
 - No CLI batch mode for the master compile — `compile_all.py` is GUI-only.
 - No clipboard parser for ashtakavarga or arudha data — those are manual-entry wizards by design.
-- No persistence/database. The only I/O is clipboard read, one JSON read (D1 master), one JSON write (merged output).
+- No persistence/database. In the master flow, I/O is: clipboard reads, one JSON read (D1 master), one JSON write (merged output). Run standalone, the sub-apps additionally save their own JSON via file dialogs.
 - No tests, no linting config, no packaging metadata.
 - `SKILLS/` contains agent-behavior markdown skills, not code. Nothing imports them.
 
@@ -54,7 +54,7 @@ If a question is answered in `docs/05_invariants_and_gotchas.md`, trust that ans
 
 - Workflow order in the GUI is fixed: Load D1 → enter varga prefix → 6 steps → Compile. Steps complete in any order, but the Compile button unlocks only when **all 6** are marked done.
 - The D1 master JSON supplies the baseline `planets` and `signs` objects; the compile deep-merges `{varga}_*` keys into them.
-- Strength scores (0–100 scale) are computed at compile time to classify yogas (Active/Dormant/Asleep) and are **not** persisted per planet — only inside yoga `technical_analysis` strings.
+- Strength scores (additive around a 100 baseline, **unclamped** — values above 100 or below 0 are possible) are computed at compile time to classify yogas (Active/Dormant/Asleep) and are **not** persisted per planet — only inside yoga `technical_analysis` strings.
 - Output file default name: `Master_Merged_{varga}.json`.
 
 ## 7. If You Must Modify Parsing Behavior

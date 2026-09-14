@@ -117,7 +117,7 @@ All shapes are quoted exactly from the code. `V` = the varga prefix entered at l
     "lagna":  {"aries": 3, …}                 // lagna is tracked here but EXCLUDED from SAV sums
   },
   "samudayashtakavarga": {
-    "aries": 33, "taurus": 28, …              // per sign, 0–48 theoretical range
+    "aries": 33, "taurus": 28, …              // per sign; theoretical max 56 (7 planets × 8 points, lagna excluded)
   }
 }
 ```
@@ -126,10 +126,10 @@ All shapes are quoted exactly from the code. `V` = the varga prefix entered at l
 
 ```jsonc
 {
-  "arudhas":        {"AL": 1, "A4": 10, …},          // values are house numbers 1–12; "None" entries omitted
+  "arudhas":        {"AL": 1, "A4": 10, …},   // values are house numbers 1–12; "None" entries omitted
   "graha_arudhas":  {"sun": 7, "mars": 2, …},
-  "varnadas":       {"V1": 1, "V2": 4, …},
-  "final_output": {}  // empty screens are omitted entirely
+  "varnadas":       {"V1": 1, "V2": 4, …}
+  // screens whose entries are all "None" are omitted entirely
 }
 ```
 

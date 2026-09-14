@@ -58,7 +58,7 @@ Two categories of ingestion exist:
 │  ├─ build signs block: house numbers, lords, occupants, special points  │
 │  ├─ special-point conjunctions (≤2.0°) THEN longitude truncation        │
 │  ├─ attach avasthas, aspects, SAV/BAV                                   │
-│  ├─ score every core planet 0–100 (evaluate_planet_strength)            │
+│  ├─ score each core planet vs a 100 baseline (evaluate_planet_strength) │
 │  ├─ classify yogas Active/Dormant/Asleep from giver scores              │
 │  ├─ attach effective argala, arudhas, varnadas                          │
 │  └─ drop empty {varga}_occupants                                        │
@@ -120,7 +120,7 @@ Manual wizard: three screens (`arudhas` = AL/A2–A12, `graha_arudhas` = one per
 5. **Avastha attach**: `{varga}_avastha_alertness` always; `{varga}_avastha_age`, `{varga}_avastha_moods` when present.
 6. **Aspect attach**: planet receivers → `{varga}_aspects_received` on planet nodes; ascendant→house receivers → same key on sign nodes (sign taken from the key if present, else derived from house number).
 7. **Ashtakavarga attach**: `{varga}_sav` (int) and `{varga}_bav` (dict over the 8 tracked bodies) per sign.
-8. **Strength scoring**: `evaluate_planet_strength` scores each core planet 0–100 from avastha, dignity, house, dispositor, BAV/SAV, nodal/special-point afflictions, and aspects. Scores exist only in memory.
+8. **Strength scoring**: `evaluate_planet_strength` scores each core planet additively from a 100 baseline (**unclamped** — values above 100 or below 0 are possible) using avastha, dignity, house, dispositor, BAV/SAV, nodal/special-point afflictions, and aspects. Scores exist only in memory.
 9. **Yoga activation**: yoga givers are matched by abbreviation (`Su/Mo/Ma/Me/Ju/Ve/Sa/Ra/Ke/Md`, word-boundary regex); the average score of involved planets decides `Active` (≥70) / `Dormant` (≥40) / `Asleep` (<40); each involved planet stores the yoga payload under `{varga}_yogas`.
 10. **Argala attach**: `working_argala` per house lands on the corresponding sign as `{varga}_effective_argala`.
 11. **Arudha attach**: each arudha/varnada/graha-arudha label is uppercased and appended to the `{varga}_{category}` list of the sign owning its house.

@@ -47,7 +47,7 @@ Pair 0 = age (Sanskrit), pair 1 = alertness (English), pairs 2+ = moods (English
 `ZODIAC_ORDER`/`ZODIAC`, `RASI_LORDS`, `NAME_DATABASE` (with *different* mapping directions: `parse_yogas` maps full name → abbreviation, others map → snake_case), and the core-planet list are re-declared per module so every file runs standalone. `compile_all` guards every import with `try/except ImportError` and degrades per-step. Don't consolidate without an explicit mandate.
 
 **G-14 — GUI completion gating is all-or-nothing.**
-Compile unlocks only when all 6 step buttons are disabled-with-✓ (`mark_complete`). Completed steps cannot be re-run in the same session (button is disabled); a mistake means restarting the app. `AshtakavargaApp` clamps entries to integers 0–8; lagna's BAV is captured but excluded from SAV.
+Compile unlocks only when all 6 step buttons are disabled-with-✓ (`mark_complete`). Completed steps cannot be re-run in the same session (button is disabled); a mistake means restarting the app. Step completion only proves the parser did not raise — an empty or malformed clipboard still marks the step done and compiles (lagna falls back to `aries`). `AshtakavargaApp` clamps entries to integers 0–8; lagna's BAV is captured but excluded from SAV.
 
 **G-15 — D1 self-healing re-nesting.**
 At compile, if core planet names appear as top-level keys of the D1 master, they are *moved* (`.pop`) under `planets`. This mutates the in-memory D1 copy only; the source file is untouched.
@@ -61,12 +61,15 @@ Whatever string is entered at load time (`D9`, `Navamsa`, anything) is interpola
 **G-18 — Success/errors share one modal.**
 `show_error` displays both failures and the final success message. Its window is always-on-top like the main window.
 
+**G-19 — Unmatched yogas are silently dropped.**
+The compile loop attaches a yoga to planets only when at least one parsed giver abbreviation maps to a name that exists in `final_payload["planets"]`. Matching considers the 9 core planets only — e.g. a yoga whose sole giver is `Md` (maandi) can never attach, because maandi is stored as a special point, never a planet node. Such yogas stay in the raw parsed data but never reach `Master_Merged_*.json`, with no warning.
+
 ## GUI / Environment Notes (for automation)
 
 - All windows force themselves topmost and steal focus (`attributes('-topmost', True)` then unset, `focus_force()`) — wizard-style UX by design.
 - `compile_all.py` requires `pyperclip`; the CLI parsers print to stdout and are scriptable (seed the clipboard, run, parse stdout).
 - `parse_aspects.py`, `parse_ashtakavarga.py`, `parse_arudha.py` have no pure-function CLI path for their wizard data (aspect *paste* parsing is importable as `clean_and_parse_aspects`).
-- `parse_planets.py`'s `check_moolatrikona` uses exclusive lower bounds for moon (`3.0001`) and mercury (`15.0001`) to avoid MT/exaltation overlap disputes; bounds are inclusive on the upper end.
+- `parse_planets.py`'s `check_moolatrikona` windows use exclusive lower bounds for moon (`3.0001`) and mercury (`15.0001`) and inclusive upper bounds. Because the exaltation check runs first in `clean_and_parse_planets`, a degree covered by both windows classifies as exalted, not MT. The MT test degree is parsed from the longitude **with seconds required**; when seconds are missing the degree defaults to `0.0`.
 
 ## Conventions Bound by This Repo (school-specific choices)
 
