@@ -108,6 +108,13 @@ All shapes are quoted exactly from the code. `V` = the varga prefix entered at l
 
 `relation ∈ {neutral, enemy, friend, worst_enemy, good_friend, own_house}`. Mode mixing is a real hazard — see gotcha G-10.
 
+**Capture-time normalization (F-01, 2026-09-15):** when ingested through `compile_all.py`,
+paste-mode bare floats are converted to the manual-mode object shape
+(`{"strength": v, "relation": "neutral"}`) by `normalize_aspect_values` inside
+`launch_aspects_ui`'s capture closure — so the merged master JSON always contains object
+values in both aspect buckets. The standalone `clean_and_parse_aspects` (and the JSON file
+it saves standalone) still emits bare floats; only the master-flow capture normalizes.
+
 ## F. Ashtakavarga wizard output
 
 ```jsonc

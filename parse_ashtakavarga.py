@@ -152,7 +152,7 @@ class AshtakavargaApp:
 
             planet = PLANETS[self.current_idx]
             self.header_var.set(f"Planet: {planet.upper()}")
-            self.instructions_var.set("Enter points (0-8). Press 'Enter' to step down.")
+            self.instructions_var.set("Enter points (0-8). Press 'Enter' to step down. Values auto-clamp to 0–8.")
 
             for i, sign in enumerate(ZODIAC):
                 self.sign_vars[i].set(str(self.bav_data[planet][sign]))

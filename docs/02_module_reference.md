@@ -21,7 +21,7 @@ Reference for every Python file. Signatures, constants, return shapes, and side 
 
 **Functions**
 
-- `check_moolatrikona(planet, rasi, degree) -> bool` — degree-window test. Windows (sign, start°, end°): sun leo 0–20, moon taurus 3.0001–20, mars aries 0–12, mercury virgo 15.0001–20, jupiter sagittarius 0–10, venus libra 0–15, saturn aquarius 0–20. Inclusive bounds. The degree is parsed from the longitude **with seconds required**; if seconds are absent the degree defaults to `0.0`.
+- `check_moolatrikona(planet, rasi, degree) -> bool` — degree-window test. Windows (sign, start°, end°): sun leo 0–20, mars aries 0–12, jupiter sagittarius 0–10, venus libra 0–15, saturn aquarius 0–20. Inclusive bounds. The moon (taurus 3.0001–20) and mercury (virgo 15.0001–20) windows were **removed 2026-09-15** (F-07, owner decision): each sits inside its own exaltation/debilitation sign, and that check runs first — unreachable under the repo's sign-based exaltation. The degree is parsed from the longitude **with seconds required**; if seconds are absent the degree defaults to `0.0` (float degree strings like `28.0°` are supported since 2026-09-15, F-04).
 - `reformat_longitude(long_str) -> str` — `"13 Vi 14' 5.3\""` → `"13° 14' 5.3\""` (the sign abbreviation is stripped from the longitude string; the sign lives in the `rasi` field).
 - `clean_and_parse_planets(raw_text) -> {"planetary_positions": [record, …]}` — the main parser.
 
@@ -29,14 +29,14 @@ Reference for every Python file. Signatures, constants, return shapes, and side 
 
 1. Strip `\x00` bytes; split lines; skip empty lines and headers (`Body…`, any line containing `Longitude`).
 2. Split each line on the coordinate regex `(\d+\s+[A-Za-z]{2}\s+\d+'\s+\d+(?:\.\d+)?\")` — the coordinate block is the anchor; anything before it is the body cell.
-3. From the body cell: detect `(R)` → `is_retrograde: true`; strip trailing `- XX` suffix and `(R)`; map through `NAME_DATABASE["planets"]`.
+3. Detect `(R)` anywhere in the row (body cell, or after the coordinate — additive tolerance since 2026-09-15, F-02) → `is_retrograde: true`; strip trailing `- XX` suffix and `(R)`; map through `NAME_DATABASE["planets"]`.
 4. From the coordinate: extract sign abbreviation → `rasi`; reformat longitude to `"D° M' S\""`.
 5. If a `lagna` record exists with a valid sign: for every record compute `house = (rasi_idx - lagna_idx) % 12 + 1`; set `house_lord` for core planets + lagna; apply the **upachaya engine** — malefic planets / upagrahas in houses 3, 6, 10, 11 get an `upachaya_effect` prose string (entity type "malefic planet" vs "upagraha" chosen by membership).
 6. For core planets only: determine `special_dignity` (`exalted` / `debilitated` / `moolatrikona`, checked in that order) and `house_dignity` — `own_house` if sign lord is self, otherwise compound natural + temporary friendship: temporary friend when `(lord_house - my_house) % 12 + 1 ∈ {2,3,4,10,11,12}`; natural value +1/0/−1, temporary ±1; sum `2 → good_friend_house`, `1 → friend_house`, `0 → neutral_house`, `−1 → enemy_house`, `−2 → worst_enemy_house`. Rahu/Ketu never receive `house_dignity` (not in `NATURAL_FRIENDSHIP`).
 
 **Record shape (per body):** `body`, `longitude`, `rasi`, optional `is_retrograde`, and (when lagna present) `house`; core planets additionally `house_lord`, optional `special_dignity`, `house_dignity`, `upachaya_effect`.
 
-**`__main__`:** reads clipboard, prints the JSON (or `[!] Clipboard is empty…`).
+**`__main__`:** reads clipboard, prints the JSON (or `[!] Clipboard is empty…`; a missing clipboard mechanism is a message, not a traceback, since F-23).
 
 ---
 
@@ -117,7 +117,7 @@ Reference for every Python file. Signatures, constants, return shapes, and side 
 
 **`clean_and_parse_aspects(raw_text) -> {"aspect_strengths": {"from_ascendant_to_houses": {…}, "planet_to_planet_aspects": {…}}}`**
 
-- Row regex: `<row name> <longitude> <aspect values…>`. Longitude anchored like `parse_planets`.
+- Row regex: `<row name> <longitude> <aspect values…>`. Coordinate tolerance is **aligned with `parse_planets`' `coord_pattern`** since 2026-09-15 (F-03, owner decision): both require `DD SS' SS"` (apostrophe + space before seconds); the seconds token is a proper decimal `\d+(?:\.\d+)?` in both.
 - Values are matched positionally against `ASPECTING_COLUMNS`; `-` means no aspect; `%` stripped; **only strengths ≥ 64.5 are kept**; values stored as **bare floats** keyed by caster.
 - Row routing: `lagna`/`N from lagna` rows → `from_ascendant_to_houses["house_N_{sign}"]`; planet rows → `planet_to_planet_aspects["{planet}_receives_aspects"]`.
 
@@ -168,7 +168,7 @@ Reference for every Python file. Signatures, constants, return shapes, and side 
 
 **Imports:** `tkinter`, `messagebox`, `filedialog`, `pyperclip`, `json`, `os`, `re`, `copy`; all seven pipeline modules under `try/except ImportError` guards (missing module ⇒ its GUI step shows "module missing" instead of crashing the app).
 
-**Constants:** `COLORS` (dark slate theme), `ZODIAC_ORDER`, `RASI_LORDS` (duplicates of `parse_planets` versions).
+**Constants:** `COLORS` (dark slate theme), `ZODIAC_ORDER`, `RASI_LORDS` (duplicates of `parse_planets` versions). Doctrine constants (F-16, values frozen): `CORE_PLANET_NAMES`, `BENEFIC_CASTERS`, `MALEFIC_CASTERS`, `GIVER_MAP`, `BAV_ROW_PLANETS`, `CONJUNCTION_DEGREES`, `ASPECT_STRONG_MIN`, `STATUS_ACTIVE_MIN`/`STATUS_DORMANT_MIN`, `BAV_HIGH_MIN`/`BAV_LOW_MAX`, `SAV_HIGH_MIN`/`SAV_LOW_MAX`, `ASPECT_KEY_RE`.
 
 **`deep_merge(dict1, dict2) -> dict1`** — recursive dict merge; nested dicts merge recursively, everything else (lists, scalars) is overwritten.
 
@@ -178,7 +178,7 @@ Reference for every Python file. Signatures, constants, return shapes, and side 
 - `steps`: the 6 buttons — planets(+argala), avasthas, aspects UI, yogas, ashtakavarga UI, arudha UI. Each disables itself on completion via `mark_complete` (appends `✓`); the Compile button unlocks only when **all six** are done.
 - `load_d1_profile`: file dialog → JSON load → `simpledialog` varga prefix → enables step buttons. Cancel at the prefix prompt aborts (buttons stay disabled).
 - Ingestion methods (`ingest_planets`, `ingest_avasthas`, `ingest_yogas`) read the clipboard and fill `raw_parsed_data`; UI-launchers (`launch_aspects_ui`, `launch_bav_ui`, `launch_arudha_ui`) build a `Toplevel`, instantiate the sub-app, and **replace its `export_json` with a closure** that copies results into `raw_parsed_data` and closes the window.
-- `compile_and_save`: the full merge/analytics pass (see `01_overview_and_pipeline.md`) and the nested helpers `get_sign_for_house(house_num)` and `evaluate_planet_strength(p_name) -> (score:int, reasons:str)`.
+- `compile_and_save`: thin try/except wrapper (F-01/TODO-02); the merge/analytics doctrine lives in module-level pure helpers (see `01_overview_and_pipeline.md`): `build_master_payload(...)`, `score_planet(payload, varga, p_name, core) -> (score, reasons)`, `classify_yogas(...)`, plus `scaffold_signs`, `attach_positions`, `resolve_conjunctions_and_truncate` (G-01 order frozen inside), `attach_avasthas/aspects/bav`, `attach_argala`, `attach_arudhas`, `strip_empty_occupants`.
 - `show_error(msg)`: reusable modal notice (also used for the success message).
 
 **`evaluate_planet_strength` scoring table** (base 100; reasons string like `"[Awake (+10), …]"`):
@@ -196,6 +196,6 @@ Reference for every Python file. Signatures, constants, return shapes, and side 
 | Special point conjunct | SP has upachaya_effect · otherwise | +10 · −20 |
 | Aspect received (strength ≥60) | benefic caster (ju/ve/me/mo) · malefic caster (sa/ma/ra/ke) · malefic caster with upachaya_effect | +15 · −15 · +5 |
 
-Missing planet / missing placement ⇒ neutral `(100, "")`. The sun is in neither benefic nor malefic aspect lists ⇒ its aspects score nothing.
+Missing planet / missing placement ⇒ neutral `(100, "")`. **Precedence (F-08):** the special-dignity row SUPPRESSES the house-dignity row — a debilitated planet in a worst-enemy sign scores −40, not −60 (no double penalty). The sun is in neither benefic nor malefic aspect lists ⇒ its aspects score nothing (owner-confirmed doctrine, 2026-09-15, F-09).
 
 **`__main__`:** `tk.Tk()` + `MasterCompilerApp` + `mainloop`.

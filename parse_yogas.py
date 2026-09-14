@@ -42,6 +42,8 @@ def clean_and_parse_yogas(raw_text):
             header_bounds['def'] = original_line.find("Brief def")
             continue
 
+        yoga_name = givers = results = None
+
         # 1. First Pass: Tab separation (Ideal if clipboard naturally preserved tabs)
         if '\t' in line:
             cols = [c.strip() for c in line.split('\t') if c.strip()]
@@ -49,24 +51,26 @@ def clean_and_parse_yogas(raw_text):
                 yoga_name = cols[0]
                 givers = cols[2]
                 results = cols[3]
-            else:
-                continue
-                
+            # F-06: a row with <4 non-empty cells no longer dies here — it falls
+            # through to passes 2/3 below instead of being dropped without trace.
+
         # 2. Second Pass: Dynamic fixed-width slicing based on header
         # This completely ignores whatever complex strings exist inside the 'Varga' column.
-        elif header_bounds and header_bounds.get('varga', -1) > 0:
+        # F-05: only when the header actually carries a 'Results' column — a -1
+        # bound used to slice givers to end-of-line and mangle the row silently.
+        if yoga_name is None and header_bounds and header_bounds.get('varga', -1) > 0 and header_bounds.get('results', -1) > 0:
             # Pad line to ensure we don't index out of bounds on shorter lines
             padded_line = original_line.ljust(header_bounds['results'] + 10)
             yoga_name = padded_line[:header_bounds['varga']].strip()
             givers = padded_line[header_bounds['givers']:header_bounds['results']].strip()
-            
+
             if header_bounds.get('def', -1) != -1 and header_bounds['def'] < len(padded_line):
                 results = padded_line[header_bounds['results']:header_bounds['def']].strip()
             else:
                 results = padded_line[header_bounds['results']:].strip()
-                
+
         # 3. Third Pass: Robust Regex Fallback if Header is Missing
-        else:
+        if yoga_name is None:
             # Safely match 'Rasi' or any 'D-XX x D-XX (Trd)' variation without greedy over-selection
             varga_pattern = r"(Rasi|D-\d+(?:\s*\([^)]*\))?(?:\s*x\s*D-\d+(?:\s*\([^)]*\))?)?)"
             match = re.match(r"^(.*?)\s+" + varga_pattern + r"\s+(.*)$", original_line.strip())
@@ -74,8 +78,8 @@ def clean_and_parse_yogas(raw_text):
             if match:
                 yoga_name = match.group(1).strip()
                 remainder = match.group(3).strip()
-                
-                # Extreme Edge Case: "Naabhasa yoga" lacks double spaces in JHora. 
+
+                # Extreme Edge Case: "Naabhasa yoga" lacks double spaces in JHora.
                 # We trap it manually so it doesn't merge with the 'Results' column.
                 if remainder.startswith("Naabhasa yoga - throughout life"):
                     givers = "Naabhasa yoga - throughout life"
@@ -115,7 +119,12 @@ def clean_and_parse_yogas(raw_text):
     return {"yogas": parsed_yogas}
 
 if __name__ == "__main__":
-    clipboard_data = pyperclip.paste()
+    # F-23: no clipboard mechanism (e.g. headless) is a message, not a traceback.
+    try:
+        clipboard_data = pyperclip.paste()
+    except pyperclip.PyperclipException as e:
+        print(f"[!] No clipboard mechanism available: {e}")
+        raise SystemExit(1)
     if not clipboard_data.strip():
         print("[!] Clipboard is empty. Copy JHora Yogas data first.")
     else:
