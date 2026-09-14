@@ -48,7 +48,12 @@ def clean_and_parse_aspects(raw_text):
     for line in lines:
         line = line.strip()
         if not line or line.startswith("Aspected Body"): continue
-        match = re.search(r"^(.*?)\s+(\d+\s+[A-Za-z]{2}\s+\d+'\s+[\d.]+\")\s+(.*)$", line)
+        # F-03 (owner decision 2026-09-15): coordinate tolerance aligned with
+        # parse_planets' coord_pattern — the seconds token becomes a proper
+        # decimal (\d+(?:\.\d+)?) instead of [\d.]+; output-identical for real
+        # JHora text. Note: both parsers require the apostrophe + the space
+        # before seconds — the original audit's F-03 comparison was corrected.
+        match = re.search(r"^(.*?)\s+(\d+\s+[A-Za-z]{2}\s+\d+'\s+\d+(?:\.\d+)?\")\s+(.*)$", line)
         if not match: continue
 
         raw_row_name = match.group(1).strip()

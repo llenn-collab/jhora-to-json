@@ -11,18 +11,25 @@ except ImportError:
 CORE_PLANETS = {"sun", "moon", "mars", "mercury", "jupiter", "venus", "saturn", "rahu", "ketu"}
 MALEFICS = {"sun", "mars", "saturn", "rahu", "ketu"}
 
+# F-16: named quarter boundaries (values unchanged).
+QUARTER_1_MAX = 7.5
+QUARTER_2_MAX = 15.0
+QUARTER_3_MAX = 22.5
+
 def get_quarter(longitude_str):
-    match = re.search(r"(\d+)°\s*(\d+)'\s*([\d.]+)", longitude_str)
+    # F-04: the degree group accepts float strings ("28.0°") — the old (\d+)
+    # grabbed the last digit-run before ° and parsed "28.0°" as 0°.
+    match = re.search(r"(\d+(?:\.\d+)?)°\s*(\d+)'\s*([\d.]+)", longitude_str)
     if match:
-        deg = int(match.group(1))
+        deg = float(match.group(1))
         mnt = int(match.group(2))
         sec = float(match.group(3))
 
         total_deg = deg + (mnt / 60.0) + (sec / 3600.0)
 
-        if total_deg < 7.5: return 1
-        elif total_deg < 15.0: return 2
-        elif total_deg < 22.5: return 3
+        if total_deg < QUARTER_1_MAX: return 1
+        elif total_deg < QUARTER_2_MAX: return 2
+        elif total_deg < QUARTER_3_MAX: return 3
         else: return 4
     return 1
 
@@ -136,7 +143,12 @@ def compute_argala_matrix(planetary_data):
     return {"argala_analysis": argala_results}
 
 if __name__ == "__main__":
-    clipboard_data = pyperclip.paste()
+    # F-23: no clipboard mechanism (e.g. headless) is a message, not a traceback.
+    try:
+        clipboard_data = pyperclip.paste()
+    except pyperclip.PyperclipException as e:
+        print(f"[!] No clipboard mechanism available: {e}")
+        raise SystemExit(1)
     if not clipboard_data.strip():
         print("[!] Clipboard empty. Copy your raw JHora longitudinal grid first.")
     elif clean_and_parse_planets:

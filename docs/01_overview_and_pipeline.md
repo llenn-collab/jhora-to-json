@@ -99,7 +99,7 @@ Both produce the same two top-level buckets: `from_ascendant_to_houses` and `pla
 
 ### Step 4 — Yogas
 
-`clean_and_parse_yogas` parses the "Varga Yoga givers" table with a 3-pass strategy: tab-separated → header-anchored fixed-width slicing → regex fallback. Yoga names become `snake_case` keys suffixed `_yoga`; duplicates get `_2`, `_3`, … Each yoga initially carries `active: true`, `yoga_givers`, `definition`; compile-time scoring may downgrade `active` to `false` and adds `status` + `technical_analysis`.
+`clean_and_parse_yogas` parses the "Varga Yoga givers" table with a 3-pass strategy: tab-separated → header-anchored fixed-width slicing → regex fallback. Since 2026-09-15 (F-05/F-06) the passes fall through instead of dropping rows: a tab row with <4 non-empty cells tries the later passes, and a header lacking a `Results` column skips fixed-width slicing. Yoga names become `snake_case` keys suffixed `_yoga`; duplicates get `_2`, `_3`, … Each yoga initially carries `active: true`, `yoga_givers`, `definition`; compile-time scoring may downgrade `active` to `false` and adds `status` + `technical_analysis`.
 
 ### Step 5 — Ashtakavarga
 
@@ -115,7 +115,7 @@ Manual wizard: three screens (`arudhas` = AL/A2–A12, `graha_arudhas` = one per
 
 1. **Self-heal** D1 nesting (root-level planet keys → `planets`).
 2. **Sign scaffolding**: every sign gets `{varga}_house_number`, `{varga}_house_lord`, `{varga}_occupants` (occupants removed later if empty). House numbering starts from the varga's lagna sign (defaults to `aries` if no lagna row was parsed).
-3. **Planet placement merge**: core planets get `{varga}_placement` (longitude, sign, house, dignity, optional special_dignity / upachaya_effect / is_retrograde) deep-merged into the D1 planet node; non-core bodies become `{varga}_special_points` entries on their sign.
+3. **Planet placement merge**: core planets get `{varga}_placement` (longitude, sign, house, dignity, optional special_dignity / upachaya_effect / is_retrograde) deep-merged into the D1 planet node; non-core bodies become `{varga}_special_points` entries on their sign. (Score doctrine note: special dignity suppresses house dignity — F-08.)
 4. **Conjunction pass**: special points are checked against all planet and special-point longitudes within **2.0°** (computed on full precision), then all longitudes are truncated (planets → `D° M'`, special points → `D°`).
 5. **Avastha attach**: `{varga}_avastha_alertness` always; `{varga}_avastha_age`, `{varga}_avastha_moods` when present.
 6. **Aspect attach**: planet receivers → `{varga}_aspects_received` on planet nodes; ascendant→house receivers → same key on sign nodes (sign taken from the key if present, else derived from house number).

@@ -66,7 +66,12 @@ def clean_and_parse_avastha(raw_text):
     return {"avasthas": parsed_records}
 
 if __name__ == "__main__":
-    clipboard_data = pyperclip.paste()
+    # F-23: no clipboard mechanism (e.g. headless) is a message, not a traceback.
+    try:
+        clipboard_data = pyperclip.paste()
+    except pyperclip.PyperclipException as e:
+        print(f"[!] No clipboard mechanism available: {e}")
+        raise SystemExit(1)
 
     if not clipboard_data.strip():
         print("[!] Clipboard is empty. Copy JHora Avastha data first.")

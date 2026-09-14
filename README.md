@@ -51,15 +51,22 @@ pip install -r requirements.txt
 python compile_all.py
 ```
 
-Every module also runs standalone and parses whatever is currently in the clipboard:
+The four clipboard parsers also run standalone and parse whatever is currently in the clipboard (a missing clipboard mechanism prints a message instead of a traceback):
 
 ```bash
 python parse_planets.py
 python parse_avastha.py
 python parse_yogas.py
 python calculate_argala.py   # parses clipboard, then computes the argala matrix
+```
+
+The three wizard modules (`parse_aspects.py`, `parse_ashtakavarga.py`, `parse_arudha.py`) have **no pure-CLI path** — standalone runs launch their respective GUIs.
+
+```bash
 python parse_aspects.py      # launches the standalone aspects GUI
 ```
+
+Automated verification (headless, tkinter stubbed): `python tests/audit_smoke.py` — the same suite CI runs (see `docs/06_audit_and_upgrade_todo.md`, F-15/TODO-15).
 
 ## Documentation Index (reading order)
 
@@ -69,3 +76,4 @@ python parse_aspects.py      # launches the standalone aspects GUI
 4. `docs/03_json_schemas.md` — every JSON shape at every stage
 5. `docs/04_domain_glossary.md` — Jyotish domain terms
 6. `docs/05_invariants_and_gotchas.md` — behavior contracts and traps (read before editing code)
+7. `docs/06_audit_and_upgrade_todo.md` — full code audit + master to-do list for future upgrades

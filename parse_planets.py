@@ -105,7 +105,9 @@ def clean_and_parse_planets(raw_text):
             raw_body_section = parts[0].strip()
             longitude_raw = parts[1].strip()
 
-            is_retrograde = "(R)" in raw_body_section
+            # F-02 (owner decision 2026-09-15): (R) after the coordinate is now
+            # detected too — additive tolerance; real JHora text unchanged.
+            is_retrograde = "(R)" in line
             clean_body = re.sub(r"\s*-\s*[A-Za-z]{2,3}$", "", raw_body_section)
             clean_body = clean_body.replace("(R)", "").strip()
 
@@ -180,9 +182,10 @@ def clean_and_parse_planets(raw_text):
 
         deg = 0.0
         if longitude:
-            deg_match = re.search(r"(\d+)°\s*(\d+)'\s*([\d.]+)", longitude)
+            # F-04 (mirror of get_quarter): degree group accepts float strings.
+            deg_match = re.search(r"(\d+(?:\.\d+)?)°\s*(\d+)'\s*([\d.]+)", longitude)
             if deg_match:
-                deg = int(deg_match.group(1)) + (int(deg_match.group(2)) / 60.0) + (float(deg_match.group(3)) / 3600.0)
+                deg = float(deg_match.group(1)) + (int(deg_match.group(2)) / 60.0) + (float(deg_match.group(3)) / 3600.0)
 
         dignity_data = DIGNITIES.get(body, {})
         if rasi == dignity_data.get("exalted"):
@@ -219,7 +222,12 @@ def clean_and_parse_planets(raw_text):
     return {"planetary_positions": parsed_records}
 
 if __name__ == "__main__":
-    clipboard_data = pyperclip.paste()
+    # F-23: no clipboard mechanism (e.g. headless) is a message, not a traceback.
+    try:
+        clipboard_data = pyperclip.paste()
+    except pyperclip.PyperclipException as e:
+        print(f"[!] No clipboard mechanism available: {e}")
+        raise SystemExit(1)
     if not clipboard_data.strip():
         print("[!] Clipboard is empty. Copy JHora data first.")
     else:

@@ -20,6 +20,7 @@ A Python desktop toolkit that converts **JHora** (Jagannatha Hora, a Vedic-astro
 | 3 | `docs/03_json_schemas.md` | Every JSON shape at every pipeline stage, key by key |
 | 4 | `docs/04_domain_glossary.md` | Jyotish (Vedic astrology) domain vocabulary |
 | 5 | `docs/05_invariants_and_gotchas.md` | Behavioral contracts, magic numbers, traps. **Read before any edit.** |
+| 6 | `docs/06_audit_and_upgrade_todo.md` | Full code audit (2026-09-14) + the master to-do list for all future upgrades. Cite finding IDs (`F-xx`) in commits. |
 
 If a question is answered in `docs/05_invariants_and_gotchas.md`, trust that answer over intuition.
 
@@ -28,7 +29,7 @@ If a question is answered in `docs/05_invariants_and_gotchas.md`, trust that ans
 - Planet names: lowercase `sun, moon, mars, mercury, jupiter, venus, saturn, rahu, ketu` (plus `lagna` and upagraha/special-point names in `snake_case`).
 - Sign names: lowercase `aries … pisces`, always in `ZODIAC_ORDER` (standard sign order, defined in `parse_planets.py` and duplicated in `compile_all.py` and `parse_ashtakavarga.py` as `ZODIAC`).
 - All JSON keys: `snake_case`. Varga-specific keys are prefixed with the user-supplied varga token (e.g. `D9_placement`, `D9_sav`).
-- The 9 "core planets" set is `{sun, moon, mars, mercury, jupiter, venus, saturn, rahu, ketu}` (defined independently in `parse_planets.py`, `calculate_argala.py`, and `compile_all.py`).
+- The 9 "core planets" set is `{sun, moon, mars, mercury, jupiter, venus, saturn, rahu, ketu}` (defined independently in `parse_planets.py` as `core_planet_keys`, `calculate_argala.py` as `CORE_PLANETS`, and `compile_all.py` as `CORE_PLANET_NAMES`). Other deliberate doctrine duplication: `BENEFIC_CASTERS` / `MALEFIC_CASTERS` / `GIVER_MAP` and the scoring thresholds in `compile_all.py`; `MALEFICS` and `QUARTER_*` bounds in `calculate_argala.py`; the 5-planet upachaya-malefic list in `parse_planets.py`. None of these are deduplicated (rule 1).
 - Sign→lord mapping `RASI_LORDS` is duplicated in `parse_planets.py` and `compile_all.py`.
 
 ## 4. Hard Rules for Code Changes

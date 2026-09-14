@@ -18,7 +18,7 @@ Terms the code uses, with the exact meaning attached to them in this repository.
 | Term | Meaning |
 |---|---|
 | **Core planets** | The 9 grahas: `sun, moon, mars, mercury, jupiter, venus, saturn, rahu, ketu`. Only these get placements, dignities, avasthas, aspect receivers, yoga attachments, strength scores. |
-| **Benefics / malefics** | Scoring lists: benefics = `jupiter, venus, mercury, moon`; malefics = `saturn, mars, rahu, ketu`. The **sun is in neither list** for aspect scoring. For upachaya purposes malefics = `sun, mars, saturn, rahu, ketu`. |
+| **Benefics / malefics** | Scoring lists: benefics = `jupiter, venus, mercury, moon`; malefics = `saturn, mars, rahu, ketu`. The **sun is in neither list** for aspect scoring (owner-confirmed 2026-09-15, F-09). For upachaya purposes malefics = `sun, mars, saturn, rahu, ketu`. |
 | **Rahu / Ketu** | Lunar nodes. Exaltation convention bound in this repo: rahu exalted in taurus / debilitated in scorpio; ketu the mirror (scorpio / taurus). Counting the target house as reversed for argala when either occupies it. |
 | **Retrograde `(R)`** | Marked `is_retrograde: true` on placement; no score effect. |
 | **Upagrahas (shadow sub-planets)** | `dhooma, vyatipata, parivesha, indra_chapa, upaketu, kaala, mrityu, artha_prahara, yama_ghantaka` plus `maandi, gulika` (`Md`, `Gk`). Treated as special points, eligible for upachaya turnaround text. |
@@ -30,7 +30,7 @@ Terms the code uses, with the exact meaning attached to them in this repository.
 | Term | Meaning |
 |---|---|
 | **Exaltation / debilitation** | Fixed sign per planet (`DIGNITIES`). Worth +20 / −40 in scoring. |
-| **Moolatrikona (MT)** | Degree window within a sign where a planet is "root of the trine" — counted equal to exalted (+20). Windows: sun leo 0–20°, moon taurus 3–20°, mars aries 0–12°, mercury virgo 15–20°, jupiter sagittarius 0–10°, venus libra 0–15°, saturn aquarius 0–20°. |
+| **Moolatrikona (MT)** | Degree window within a sign where a planet is "root of the trine" — counted equal to exalted (+20). Windows: sun leo 0–20°, mars aries 0–12°, jupiter sagittarius 0–10°, venus libra 0–15°, saturn aquarius 0–20°. (Moon taurus 3–20° and mercury virgo 15–20° were removed 2026-09-15, F-07: unreachable under sign-based exaltation, which runs first.) |
 | **House dignity** | Compound relationship between planet and its sign lord: natural friendship (fixed per the 7 true planets) combined with temporary friendship (lord in houses 2/3/4/10/11/12 relative to the planet ⇒ temporary friend). Sum maps to `good_friend_house / friend_house / neutral_house / enemy_house / worst_enemy_house`; same-sign = `own_house`. Default when unknown: `neutral_house`. |
 
 ## Houses
